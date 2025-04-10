@@ -12,7 +12,7 @@ return new class extends Migration {
     {
         Schema::create('parking_spaces', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id')->nullable(); // Make user_id nullable
+            $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
             $table->string('unique_id')->unique();
             $table->string('title');
             $table->string('type_of_spot');
@@ -23,14 +23,10 @@ return new class extends Migration {
             $table->decimal('longitude', 10, 7);
             $table->longText('address')->nullable();
             $table->json('gallery_images')->nullable();
-            $table->enum('status', ['available', 'unavailable', 'sold-out', 'close']);
+            $table->string('slug')->unique();
+            $table->enum('status', ['available', 'unavailable', 'sold-out', 'close'])->default('available');
             $table->timestamps();
-            $table->softDeletes(); // Add soft delete column
-
-            // Add foreign key constraint with onDelete set to NULL
-            $table->foreign('user_id')
-                ->references('id')->on('users')
-                ->onDelete('set null');
+            $table->softDeletes();
         });
     }
 

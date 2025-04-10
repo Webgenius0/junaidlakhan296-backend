@@ -10,6 +10,7 @@ use App\Http\Controllers\API\Auth\SocialLoginController;
 use App\Http\Controllers\API\Auth\UserController;
 use App\Http\Controllers\API\V1\AnonymousUserController;
 use App\Http\Controllers\API\V1\CMS\HomePageController;
+use App\Http\Controllers\API\V1\ParkingSpaceController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -27,6 +28,7 @@ Route::group(['middleware' => 'guest:api'], function ($router) {
     Route::post('/reset-password', [ResetPasswordController::class, 'ResetPassword']);
     //social login
     Route::post('/social-login', [SocialLoginController::class, 'SocialLogin']);
+
 });
 
 Route::group(['middleware' => 'auth:api'], function ($router) {
@@ -51,6 +53,20 @@ Route::get('/cms/system-info', [HomePageController::class, 'getSystemInfo']);
 Route::get("dynamic-pages", [HomePageController::class, "getDynamicPages"]);
 Route::get("dynamic-pages/single/{slug}", [HomePageController::class, "showDaynamicPage"]);
 
-Route::group(['middleware' => 'check_anonymous_user'], function ($router) {
+// Route::group(['middleware' => 'check_anonymous_user'], function ($router) {
 
+// });
+
+
+Route::group(['middleware' => ['auth:api', 'check_is_host']], function ($router) {
+    Route::get('/my-parking-spaces', [ParkingSpaceController::class, 'indexForHost']);
+    Route::post('/my-parking-spaces/create', [ParkingSpaceController::class, 'store']);
+    Route::post('/my-parking-spaces/update/{ParkingSpaceSlug}', [ParkingSpaceController::class, 'update']);
+    Route::get('/my-parking-spaces/single/{ParkingSpaceSlug}', [ParkingSpaceController::class, 'showForHost']);
+    Route::delete('/my-parking-spaces/delete/{ParkingSpaceSlug}', [ParkingSpaceController::class, 'destroy']);
 });
+
+
+// public api
+Route::get('/parking-spaces', [ParkingSpaceController::class, 'indexForUsers']);
+Route::get('/parking-spaces/single/{ParkingSpaceSlug}', [ParkingSpaceController::class, 'showForUsers']);
